@@ -261,38 +261,141 @@ class ChatterBoxGUI(QMainWindow):
         
         # Parameters
         params_group = QGroupBox("Generation Parameters")
-        params_layout = QGridLayout()
+        params_layout = QVBoxLayout()
         
-        # Exaggeration
-        params_layout.addWidget(QLabel("Exaggeration:"), 0, 0)
-        self.tts_exaggeration = QDoubleSpinBox()
-        self.tts_exaggeration.setRange(0.25, 2.0)
-        self.tts_exaggeration.setSingleStep(0.05)
-        self.tts_exaggeration.setValue(0.5)
-        params_layout.addWidget(self.tts_exaggeration, 0, 1)
+        # Exaggeration Slider
+        exag_layout = QHBoxLayout()
+        exag_label = QLabel("Exaggeration:")
+        exag_label.setMinimumWidth(100)
+        exag_layout.addWidget(exag_label)
         
-        # CFG Weight
-        params_layout.addWidget(QLabel("CFG/Pace:"), 1, 0)
-        self.tts_cfg = QDoubleSpinBox()
-        self.tts_cfg.setRange(0.0, 1.0)
-        self.tts_cfg.setSingleStep(0.05)
-        self.tts_cfg.setValue(0.5)
-        params_layout.addWidget(self.tts_cfg, 1, 1)
+        self.tts_exaggeration_slider = QSlider(Qt.Orientation.Horizontal)
+        self.tts_exaggeration_slider.setRange(25, 200)  # 0.25 to 2.0, scaled by 100
+        self.tts_exaggeration_slider.setValue(50)  # 0.5
+        self.tts_exaggeration_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.tts_exaggeration_slider.setTickInterval(25)
+        self.tts_exaggeration_slider.setToolTip("Controls the emotional intensity of the voice. Higher values make the voice more expressive.")
         
-        # Temperature
-        params_layout.addWidget(QLabel("Temperature:"), 2, 0)
-        self.tts_temperature = QDoubleSpinBox()
-        self.tts_temperature.setRange(0.05, 5.0)
-        self.tts_temperature.setSingleStep(0.05)
-        self.tts_temperature.setValue(0.8)
-        params_layout.addWidget(self.tts_temperature, 2, 1)
+        self.tts_exaggeration_value = QLabel("0.50")
+        self.tts_exaggeration_value.setMinimumWidth(50)
+        self.tts_exaggeration_value.setAlignment(Qt.AlignmentFlag.AlignRight)
         
-        # Seed
-        params_layout.addWidget(QLabel("Seed (0=random):"), 3, 0)
+        self.tts_exaggeration_slider.valueChanged.connect(
+            lambda v: self.tts_exaggeration_value.setText(f"{v/100:.2f}")
+        )
+        
+        exag_layout.addWidget(self.tts_exaggeration_slider)
+        exag_layout.addWidget(self.tts_exaggeration_value)
+        
+        exag_hint = QLabel("(Neutral = 0.5, extreme values can be unstable)")
+        exag_hint.setStyleSheet("QLabel { color: #888; font-size: 11px; }")
+        exag_range = QLabel("Range: 0.25 - 2.0")
+        exag_range.setStyleSheet("QLabel { color: #666; font-size: 10px; }")
+        
+        params_layout.addLayout(exag_layout)
+        params_layout.addWidget(exag_hint)
+        params_layout.addWidget(exag_range)
+        params_layout.addSpacing(10)
+        
+        # CFG Weight Slider
+        cfg_layout = QHBoxLayout()
+        cfg_label = QLabel("CFG/Pace:")
+        cfg_label.setMinimumWidth(100)
+        cfg_layout.addWidget(cfg_label)
+        
+        self.tts_cfg_slider = QSlider(Qt.Orientation.Horizontal)
+        self.tts_cfg_slider.setRange(0, 100)  # 0.0 to 1.0, scaled by 100
+        self.tts_cfg_slider.setValue(50)  # 0.5
+        self.tts_cfg_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.tts_cfg_slider.setTickInterval(25)
+        self.tts_cfg_slider.setToolTip("Controls the pacing and rhythm of speech. Higher values may produce more measured speech.")
+        
+        self.tts_cfg_value = QLabel("0.50")
+        self.tts_cfg_value.setMinimumWidth(50)
+        self.tts_cfg_value.setAlignment(Qt.AlignmentFlag.AlignRight)
+        
+        self.tts_cfg_slider.valueChanged.connect(
+            lambda v: self.tts_cfg_value.setText(f"{v/100:.2f}")
+        )
+        
+        cfg_layout.addWidget(self.tts_cfg_slider)
+        cfg_layout.addWidget(self.tts_cfg_value)
+        
+        cfg_range = QLabel("Range: 0.0 - 1.0")
+        cfg_range.setStyleSheet("QLabel { color: #666; font-size: 10px; }")
+        
+        params_layout.addLayout(cfg_layout)
+        params_layout.addWidget(cfg_range)
+        params_layout.addSpacing(10)
+        
+        # Temperature Slider
+        temp_layout = QHBoxLayout()
+        temp_label = QLabel("Temperature:")
+        temp_label.setMinimumWidth(100)
+        temp_layout.addWidget(temp_label)
+        
+        self.tts_temperature_slider = QSlider(Qt.Orientation.Horizontal)
+        self.tts_temperature_slider.setRange(5, 500)  # 0.05 to 5.0, scaled by 100
+        self.tts_temperature_slider.setValue(80)  # 0.8
+        self.tts_temperature_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.tts_temperature_slider.setTickInterval(100)
+        self.tts_temperature_slider.setToolTip("Controls randomness in generation. Lower values are more conservative, higher values more varied.")
+        
+        self.tts_temperature_value = QLabel("0.80")
+        self.tts_temperature_value.setMinimumWidth(50)
+        self.tts_temperature_value.setAlignment(Qt.AlignmentFlag.AlignRight)
+        
+        self.tts_temperature_slider.valueChanged.connect(
+            lambda v: self.tts_temperature_value.setText(f"{v/100:.2f}")
+        )
+        
+        temp_layout.addWidget(self.tts_temperature_slider)
+        temp_layout.addWidget(self.tts_temperature_value)
+        
+        temp_range = QLabel("Range: 0.05 - 5.0")
+        temp_range.setStyleSheet("QLabel { color: #666; font-size: 10px; }")
+        
+        params_layout.addLayout(temp_layout)
+        params_layout.addWidget(temp_range)
+        params_layout.addSpacing(10)
+        
+        # Seed (keep as spinbox)
+        seed_layout = QHBoxLayout()
+        seed_label = QLabel("Seed:")
+        seed_label.setMinimumWidth(100)
+        seed_layout.addWidget(seed_label)
+        
         self.tts_seed = QSpinBox()
         self.tts_seed.setRange(0, 999999)
         self.tts_seed.setValue(0)
-        params_layout.addWidget(self.tts_seed, 3, 1)
+        self.tts_seed.setSpecialValueText("Random")
+        self.tts_seed.setMinimumWidth(100)
+        self.tts_seed.setToolTip("Set a specific seed for reproducible results, or leave at 0 for random generation.")
+        
+        seed_hint = QLabel("(0 = random seed)")
+        seed_hint.setStyleSheet("QLabel { color: #888; font-size: 11px; }")
+        
+        seed_layout.addWidget(self.tts_seed)
+        seed_layout.addWidget(seed_hint)
+        seed_layout.addStretch()
+        
+        params_layout.addLayout(seed_layout)
+        
+        # Reset to defaults button
+        params_layout.addSpacing(15)
+        reset_btn = QPushButton("Reset to Defaults")
+        reset_btn.clicked.connect(self.reset_tts_params)
+        reset_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #555;
+                padding: 8px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #666;
+            }
+        """)
+        params_layout.addWidget(reset_btn)
         
         params_group.setLayout(params_layout)
         left_layout.addWidget(params_group)
@@ -557,6 +660,37 @@ class ChatterBoxGUI(QMainWindow):
                 background-color: #4CAF50;
                 border-radius: 3px;
             }
+            QSlider {
+                margin: 5px 0;
+            }
+            QSlider::groove:horizontal {
+                border: 1px solid #444;
+                height: 8px;
+                background: #2d2d2d;
+                border-radius: 4px;
+            }
+            QSlider::handle:horizontal {
+                background: #4CAF50;
+                border: 1px solid #3d9d3f;
+                width: 20px;
+                height: 20px;
+                margin: -6px 0;
+                border-radius: 10px;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #5cbf60;
+            }
+            QSlider::sub-page:horizontal {
+                background: #4CAF50;
+                border: 1px solid #3d9d3f;
+                height: 8px;
+                border-radius: 4px;
+            }
+            QSlider::tick-mark {
+                background: #666;
+                width: 1px;
+                height: 5px;
+            }
         """)
         
     def update_char_count(self):
@@ -567,6 +701,13 @@ class ChatterBoxGUI(QMainWindow):
             self.tts_char_count.setStyleSheet("QLabel { color: #ff4444; }")
         else:
             self.tts_char_count.setStyleSheet("QLabel { color: #ffffff; }")
+            
+    def reset_tts_params(self):
+        """Reset all TTS parameters to default values"""
+        self.tts_exaggeration_slider.setValue(50)  # 0.5
+        self.tts_cfg_slider.setValue(50)  # 0.5
+        self.tts_temperature_slider.setValue(80)  # 0.8
+        self.tts_seed.setValue(0)  # Random
             
     def load_tts_reference(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -620,10 +761,10 @@ class ChatterBoxGUI(QMainWindow):
             self.tts_model,
             text,
             self.tts_ref_path,
-            self.tts_exaggeration.value(),
-            self.tts_temperature.value(),
+            self.tts_exaggeration_slider.value() / 100,  # Convert from slider scale
+            self.tts_temperature_slider.value() / 100,   # Convert from slider scale
             self.tts_seed.value(),
-            self.tts_cfg.value()
+            self.tts_cfg_slider.value() / 100            # Convert from slider scale
         )
         
         self.tts_worker.progress.connect(self.update_tts_progress)
